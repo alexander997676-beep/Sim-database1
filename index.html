@@ -1,432 +1,548 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mob i - Latest & Search</title>
-    <style>
-        /* --- CSS STYLES --- */
-        :root {
-            --primary: #00e5ff; /* Cyan Blue */
-            --bg: #121212;
-            --card-bg: #1e1e1e;
-            --text-main: #ffffff;
-            --text-sec: #b3b3b3;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>NEXUS DB | Advanced Search</title>
+  <meta name="description" content="Next Gen Database Lookup Tool" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  <style>
+    /* ===== VARIABLES & RESET ===== */
+    :root {
+      --bg-dark: #0a0e17;
+      --glass-bg: rgba(20, 25, 40, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --primary: #00f2ea;
+      --primary-dim: rgba(0, 242, 234, 0.1);
+      --secondary: #7000ff;
+      --text-main: #ffffff;
+      --text-muted: #8b9bb4;
+      --success: #00ff88;
+      --error: #ff3366;
+      --font-main: 'Outfit', sans-serif;
+      --font-tech: 'Rajdhani', sans-serif;
+      --radius: 16px;
+      --shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+    }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.15) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(0, 242, 234, 0.1) 0%, transparent 20%);
+      font-family: var(--font-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
 
-        /* Navbar */
-        nav {
-            background: rgba(30, 30, 30, 0.95);
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+    /* ===== BACKGROUND ANIMATION ===== */
+    .grid-bg {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-size: 50px 50px;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      z-index: -1;
+      pointer-events: none;
+    }
 
-        .logo { font-size: 1.8rem; font-weight: 800; }
-        .logo span { color: var(--primary); }
+    /* ===== NAVIGATION ===== */
+    .navbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 25px;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    
+    .brand {
+      font-family: var(--font-tech);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #fff, var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex; align-items: center; gap: 10px;
+    }
 
-        .nav-links button {
-            background: none;
-            border: none;
-            color: var(--text-main);
-            font-size: 1rem;
-            margin-left: 20px;
-            cursor: pointer;
-            padding: 5px 10px;
-            font-weight: 500;
-            transition: 0.3s;
-        }
+    .nav-actions a {
+      color: var(--text-main);
+      font-size: 1.2rem;
+      margin-left: 20px;
+      transition: color 0.3s, text-shadow 0.3s;
+    }
+    .nav-actions a:hover { color: var(--primary); text-shadow: 0 0 10px var(--primary); }
 
-        .nav-links button.active, .nav-links button:hover {
-            color: var(--primary);
-        }
+    /* ===== CONTAINER & HERO ===== */
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      flex: 1;
+      width: 100%;
+    }
 
-        /* Sections */
-        .section {
-            display: none; /* Hidden by default */
-            padding: 20px 5%;
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            animation: fadeIn 0.5s ease;
-        }
-        .section.active { display: block; }
+    .hero-text {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .hero-text h1 {
+      font-family: var(--font-tech);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .hero-text h1 span { color: var(--primary); }
+    .hero-text p { color: var(--text-muted); letter-spacing: 1px; font-size: 0.9rem; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    /* ===== GLASS CARD ===== */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 30px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Neon glow line at top */
+    .glass-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    }
 
-        /* Titles */
-        .section-title {
-            font-size: 1.5rem;
-            margin: 20px 0;
-            border-left: 4px solid var(--primary);
-            padding-left: 15px;
-        }
+    /* ===== SEARCH TABS ===== */
+    .search-tabs {
+      display: flex;
+      background: rgba(0,0,0,0.3);
+      padding: 5px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      position: relative;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      z-index: 2;
+      color: var(--text-muted);
+      font-weight: 600;
+      transition: color 0.3s;
+      font-size: 0.9rem;
+    }
+    .tab.active { color: var(--bg-dark); }
+    
+    .tab-slider {
+      position: absolute;
+      top: 5px; left: 5px;
+      width: calc(50% - 5px);
+      height: calc(100% - 10px);
+      background: var(--primary);
+      border-radius: 8px;
+      transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+      box-shadow: 0 0 15px var(--primary-dim);
+      z-index: 1;
+    }
 
-        /* Search Box Design */
-        .search-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-            margin-top: 20px;
-        }
+    /* ===== INPUT AREA ===== */
+    .input-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+    .input-group i {
+      position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+      color: var(--primary); font-size: 1.1rem;
+    }
+    .search-input {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      padding: 18px 18px 18px 50px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-family: var(--font-tech);
+      letter-spacing: 1px;
+      transition: all 0.3s;
+      outline: none;
+    }
+    .search-input::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 0; font-family: var(--font-main); }
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--primary-dim);
+      background: rgba(0,0,0,0.5);
+    }
 
-        .input-group {
-            display: flex;
-            width: 100%;
-            max-width: 600px;
-            position: relative;
-        }
+    /* ===== BUTTON ===== */
+    .search-btn {
+      width: 100%;
+      padding: 18px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--secondary), #4a00e0);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      font-family: var(--font-tech);
+    }
+    .search-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(112, 0, 255, 0.3); }
+    .search-btn:active { transform: translateY(0); }
+    .search-btn i { margin-right: 8px; }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 15px 20px;
-            border-radius: 50px;
-            border: 2px solid #333;
-            background: var(--card-bg);
-            color: white;
-            font-size: 1rem;
-            outline: none;
-            padding-right: 100px; /* Space for button */
-        }
+    /* ===== LOADING STATE ===== */
+    .loading-container {
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 0;
+    }
+    .loader-ring {
+      width: 50px; height: 50px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 15px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-family: var(--font-tech); color: var(--primary); letter-spacing: 2px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        input[type="text"]:focus { border-color: var(--primary); }
+    /* ===== RESULTS AREA ===== */
+    .results-area { display: none; margin-top: 30px; animation: slideUp 0.5s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        button#search-btn {
-            position: absolute;
-            right: 5px;
-            top: 5px;
-            bottom: 5px;
-            padding: 0 25px;
-            border-radius: 40px;
-            border: none;
-            background: var(--primary);
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+    .result-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 15px; padding: 0 5px;
+    }
+    .badge { background: var(--primary); color: #000; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 0.75rem; font-family: var(--font-tech); }
 
-        button#search-btn:active { transform: scale(0.95); }
+    .data-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .data-row {
+      display: flex; flex-direction: column; margin-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;
+    }
+    .data-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    
+    .data-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
+    
+    .data-value-group { display: flex; justify-content: space-between; align-items: center; }
+    .data-value { font-size: 1.1rem; color: #fff; font-family: var(--font-tech); word-break: break-all; }
+    
+    .copy-btn {
+      background: none; border: none; color: var(--primary);
+      cursor: pointer; opacity: 0.6; transition: 0.2s; padding: 5px;
+    }
+    .copy-btn:hover { opacity: 1; transform: scale(1.1); }
 
-        /* Grid System */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-        }
+    /* ===== ERROR / PREMIUM BOX ===== */
+    .msg-box {
+      padding: 25px; border-radius: 12px; text-align: center;
+      background: rgba(255, 51, 102, 0.1); border: 1px solid rgba(255, 51, 102, 0.3);
+      margin-top: 20px;
+    }
+    .msg-box.premium { background: rgba(255, 180, 0, 0.08); border-color: rgba(255, 180, 0, 0.3); }
+    .msg-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+    .msg-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 5px; color: #fff; }
+    .msg-desc { color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 15px; }
+    
+    .contact-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #25D366; color: #fff; text-decoration: none;
+      padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+      transition: transform 0.2s;
+    }
+    .contact-btn:hover { transform: scale(1.05); }
 
-        /* Card Design */
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #333;
-            cursor: pointer;
-            transition: transform 0.3s;
-            display: flex;
-            flex-direction: column;
-        }
+    /* ===== TOAST NOTIFICATION ===== */
+    #toast {
+      visibility: hidden; min-width: 250px; background-color: #333; color: #fff;
+      text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 1000;
+      left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 0.9rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+    @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+    @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 5px 15px rgba(0, 229, 255, 0.1);
-        }
+    /* ===== FOOTER ===== */
+    footer { text-align: center; margin-top: auto; padding: 20px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); }
+    footer a { color: var(--text-muted); text-decoration: none; margin: 0 5px; }
+    footer a:hover { color: var(--primary); }
 
-        .card img {
-            width: 100%;
-            height: 220px;
-            object-fit: contain;
-            background: #fff;
-            padding: 15px;
-        }
-
-        .card-body { padding: 15px; text-align: center; }
-        .card-title { font-weight: bold; font-size: 1rem; margin-bottom: 5px; }
-        .card-desc { font-size: 0.8rem; color: var(--text-sec); display: none; } /* Hidden in grid, shown in popup */
-
-        /* Loader */
-        .loader {
-            display: none;
-            border: 4px solid #333;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 30px auto;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /* Modal (Popup) */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 500px;
-            border-radius: 15px;
-            padding: 20px;
-            border: 1px solid var(--primary);
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px; right: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #fff;
-        }
-
-        .modal-specs ul { margin-top: 15px; list-style: none; }
-        .modal-specs li {
-            padding: 8px 0;
-            border-bottom: 1px solid #333;
-            color: var(--text-sec);
-            font-size: 0.9rem;
-        }
-        .modal-specs strong { color: var(--primary); display: block; }
-
-    </style>
+  </style>
 </head>
 <body>
 
-    <!-- Navigation -->
-    <nav>
-        <div class="logo">mob <span>i</span></div>
-        <div class="nav-links">
-            <button id="btn-home" onclick="showPage('home')" class="active">Home</button>
-            <button id="btn-search" onclick="showPage('search')">Search</button>
-        </div>
-    </nav>
+  <div class="grid-bg"></div>
 
-    <!-- 1. HOME SECTION (Trending/Latest) -->
-    <section id="home-section" class="section active">
-        <h2 class="section-title">🔥 Trending Now</h2>
-        <p style="color: gray; margin-bottom: 20px;">Top latest mobile phones</p>
-        
-        <!-- Loader for Home -->
-        <div id="home-loader" class="loader"></div>
-        
-        <div class="grid" id="home-grid">
-            <!-- Trending mobiles will load here automatically -->
-        </div>
-    </section>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="brand">
+      <i class="fa-solid fa-fingerprint" style="color:var(--primary)"></i> NEXUS DB
+    </div>
+    <div class="nav-actions">
+      <a href="https://t.me/astechteam" target="_blank"><i class="fa-brands fa-telegram"></i></a>
+      <a href="https://wa.me/923457293830" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+    </div>
+  </nav>
 
-    <!-- 2. SEARCH SECTION -->
-    <section id="search-section" class="section">
-        <div class="search-container">
-            <div class="input-group">
-                <input type="text" id="search-input" placeholder="Search mobile (e.g. Pixel 8, iPhone 15)...">
-                <button id="search-btn" onclick="performSearch()">Search</button>
-            </div>
-        </div>
-
-        <!-- Loader for Search -->
-        <div id="search-loader" class="loader"></div>
-
-        <div class="grid" id="search-grid">
-            <!-- Search results will appear here -->
-        </div>
-    </section>
-
-    <!-- 3. DETAILS MODAL -->
-    <div class="modal" id="details-modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div style="text-align: center;">
-                <img id="modal-img" src="" style="height: 180px; margin-bottom: 10px;">
-                <h2 id="modal-title"></h2>
-            </div>
-            <div class="modal-specs" id="modal-specs"></div>
-        </div>
+  <!-- Main Content -->
+  <div class="container">
+    
+    <div class="hero-text">
+      <h1>Data <span>Search</span></h1>
+      <p>Secure Pakistani SIM Database & CNIC Verification System</p>
     </div>
 
-    <script>
-        // API Base URL
-        const API_URL = "https://api.xyro.site/search/gsmarena";
+    <div class="glass-card">
+      <form id="searchForm" autocomplete="off">
+        
+        <!-- Custom Tabs -->
+        <div class="search-tabs">
+          <div class="tab-slider" id="tabSlider"></div>
+          <div class="tab active" data-type="phone" onclick="switchTab('phone')">Phone</div>
+          <div class="tab" data-type="cnic" onclick="switchTab('cnic')">CNIC</div>
+        </div>
+        <input type="hidden" id="searchType" value="phone">
 
-        // ---- PAGE NAVIGATION LOGIC ----
-        function showPage(pageId) {
-            // Hide all sections
-            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.nav-links button').forEach(btn => btn.classList.remove('active'));
+        <!-- Input -->
+        <div class="input-group">
+          <i class="fa-solid fa-mobile-screen-button" id="inputIcon"></i>
+          <input type="tel" class="search-input" id="searchInput" placeholder="0300 1234567" maxlength="12">
+        </div>
 
-            // Show selected section
-            if (pageId === 'home') {
-                document.getElementById('home-section').classList.add('active');
-                document.getElementById('btn-home').classList.add('active');
-            } else {
-                document.getElementById('search-section').classList.add('active');
-                document.getElementById('btn-search').classList.add('active');
-                // Focus on input automatically
-                setTimeout(() => document.getElementById('search-input').focus(), 100);
-            }
+        <button type="submit" class="search-btn">
+          <i class="fa-solid fa-magnifying-glass"></i> Initiate Search
+        </button>
+      </form>
+
+      <!-- Loading State -->
+      <div id="loading" class="loading-container">
+        <div class="loader-ring"></div>
+        <div class="loading-text">DECRYPTING DATABASE...</div>
+      </div>
+
+      <!-- Results -->
+      <div id="results" class="results-area"></div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 NEXUS DATABASE | <a href="#">Privacy</a> &bull; <a href="#">Terms</a></p>
+  </footer>
+
+  <!-- Toast Notification -->
+  <div id="toast"><i class="fa-solid fa-check-circle" style="color:var(--success)"></i> Copied to clipboard</div>
+
+  <script>
+    /* ===== LOGIC VARIABLES ===== */
+    const PROXY_URL = 'https://solo.f-a-k.workers.dev/'; // Using Proxy for CORS
+    const API_BASE_URL = 'https://fam-official.serv00.net/api/database.php';
+    
+    const form = document.getElementById('searchForm');
+    const input = document.getElementById('searchInput');
+    const typeInput = document.getElementById('searchType');
+    const slider = document.getElementById('tabSlider');
+    const icon = document.getElementById('inputIcon');
+    const resultsDiv = document.getElementById('results');
+    const loadingDiv = document.getElementById('loading');
+    const toast = document.getElementById('toast');
+
+    /* ===== UI INTERACTIONS ===== */
+    function switchTab(type) {
+      // Update State
+      typeInput.value = type;
+      input.value = ''; // Clear input on switch
+      resultsDiv.style.display = 'none';
+
+      // Visual Updates
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.tab[data-type="${type}"]`).classList.add('active');
+
+      if(type === 'phone') {
+        slider.style.transform = 'translateX(0%)';
+        input.placeholder = '0300 1234567';
+        input.maxLength = 12; // 11 digits + 1 space
+        icon.className = 'fa-solid fa-mobile-screen-button';
+      } else {
+        slider.style.transform = 'translateX(100%)'; // Move slider
+        input.placeholder = '35202-1234567-8';
+        input.maxLength = 15; // 13 digits + 2 dashes
+        icon.className = 'fa-solid fa-id-card';
+      }
+      input.focus();
+    }
+
+    // Input Formatting (Auto Spacing/Dashes)
+    input.addEventListener('input', function(e) {
+      let val = e.target.value.replace(/\D/g, ''); // Strip non-digits
+      const type = typeInput.value;
+
+      if (type === 'phone') {
+        // Format: 0300 1234567
+        if (val.length > 4) {
+          e.target.value = val.slice(0, 4) + ' ' + val.slice(4, 11);
+        } else {
+          e.target.value = val;
+        }
+      } else {
+        // Format: 35202-1234567-8
+        if (val.length > 12) {
+          e.target.value = val.slice(0, 5) + '-' + val.slice(5, 12) + '-' + val.slice(12, 13);
+        } else if (val.length > 5) {
+          e.target.value = val.slice(0, 5) + '-' + val.slice(5, 12);
+        } else {
+          e.target.value = val;
+        }
+      }
+    });
+
+    /* ===== COPY FUNCTION ===== */
+    function copyToClipboard(text) {
+      if(!text || text === 'N/A') return;
+      navigator.clipboard.writeText(text).then(() => {
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+      });
+    }
+
+    /* ===== FETCH DATA ===== */
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Get raw value (remove spaces/dashes)
+      const rawValue = input.value.replace(/[\s-]/g, '');
+      const type = typeInput.value;
+
+      // Validation
+      if (type === 'phone' && !/^03\d{9}$/.test(rawValue)) {
+        alert("Please enter a valid 11-digit Pakistani number starting with 03.");
+        return;
+      }
+      if (type === 'cnic' && !/^\d{13}$/.test(rawValue)) {
+        alert("Please enter a valid 13-digit CNIC.");
+        return;
+      }
+
+      // UI Loading
+      resultsDiv.style.display = 'none';
+      loadingDiv.style.display = 'flex';
+      form.querySelector('button').disabled = true;
+
+      try {
+        const targetApiUrl = `${API_BASE_URL}?number=${rawValue}`;
+        const finalUrl = `${PROXY_URL}?url=${encodeURIComponent(targetApiUrl)}`;
+        
+        const response = await fetch(finalUrl);
+        const data = await response.json();
+
+        loadingDiv.style.display = 'none';
+        form.querySelector('button').disabled = false;
+        resultsDiv.style.display = 'block';
+
+        if (data.success && data.data && data.data.length > 0) {
+          renderResults(data.data);
+        } else {
+          renderPremium(rawValue);
         }
 
-        // ---- HOME PAGE LOGIC (AUTO LOAD) ----
-        // Jaise hi page load hoga, ye chalega
-        window.addEventListener('DOMContentLoaded', () => {
-            loadHomeData();
-        });
+      } catch (error) {
+        loadingDiv.style.display = 'none';
+        form.querySelector('button').disabled = false;
+        resultsDiv.style.display = 'block';
+        resultsDiv.innerHTML = `
+          <div class="msg-box" style="border-color: var(--error)">
+            <span class="msg-icon" style="color: var(--error)">⚠️</span>
+            <div class="msg-title">Connection Error</div>
+            <div class="msg-desc">Could not connect to database. Please check internet or try later.</div>
+          </div>`;
+      }
+    });
 
-        async function loadHomeData() {
-            const grid = document.getElementById('home-grid');
-            const loader = document.getElementById('home-loader');
+    function renderResults(records) {
+      let html = `
+        <div class="result-meta">
+          <span style="color:var(--text-muted)">Results Found</span>
+          <span class="badge">${records.length} RECORDS</span>
+        </div>`;
 
-            loader.style.display = 'block';
+      records.forEach((rec, index) => {
+        // Formatting keys nicely
+        const fields = [
+          { key: 'name', label: 'Full Name', icon: 'fa-user' },
+          { key: 'number', label: 'Phone Number', icon: 'fa-phone' },
+          { key: 'cnic', label: 'CNIC Number', icon: 'fa-id-card' },
+          { key: 'address', label: 'Registered Address', icon: 'fa-map-location-dot' }
+        ];
 
-            // Kyunki ye API "Latest" ka direct option nahi deti,
-            // Hum "Samsung" ya "iPhone" search karke trending phones dikhayenge
-            // Taaki Home page khali na rahe.
-            try {
-                // Default search for Home Page (You can change "Samsung" to "2024" or "Apple")
-                const response = await fetch(`${API_URL}?q=Samsung`);
-                const json = await response.json();
-
-                loader.style.display = 'none';
-
-                if (json.status && json.data) {
-                    // Sirf pehle 8 phones dikhayenge home page par
-                    const topPhones = json.data.slice(0, 10);
-                    renderGrid(topPhones, grid);
-                } else {
-                    grid.innerHTML = "<p>Could not load trending phones.</p>";
-                }
-            } catch (error) {
-                console.error("Home Load Error:", error);
-                loader.style.display = 'none';
-                grid.innerHTML = "<p>Check internet connection.</p>";
-            }
-        }
-
-        // ---- SEARCH LOGIC (FIXED) ----
-        async function performSearch() {
-            const query = document.getElementById('search-input').value.trim();
-            const grid = document.getElementById('search-grid');
-            const loader = document.getElementById('search-loader');
-
-            if (!query) return; // Empty search ko roko
-
-            // UI Reset
-            grid.innerHTML = "";
-            loader.style.display = 'block';
-
-            try {
-                // API Call
-                const response = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
-                const json = await response.json();
-
-                loader.style.display = 'none';
-
-                if (json.status && json.data && json.data.length > 0) {
-                    renderGrid(json.data, grid);
-                } else {
-                    grid.innerHTML = `<p style="text-align:center; width:100%; margin-top:20px;">No results found for "${query}"</p>`;
-                }
-
-            } catch (error) {
-                console.error("Search Error:", error);
-                loader.style.display = 'none';
-                grid.innerHTML = `<p style="text-align:center; color:red; width:100%;">API Error. Please try again.</p>`;
-            }
-        }
-
-        // ---- COMMON RENDER FUNCTION ----
-        function renderGrid(data, container) {
-            container.innerHTML = ""; // Clear old data
-            data.forEach(phone => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.onclick = () => openModal(phone); // Click to open details
-
-                card.innerHTML = `
-                    <img src="${phone.thumbnail}" alt="${phone.name}" onerror="this.src='https://via.placeholder.com/150?text=No+Img'">
-                    <div class="card-body">
-                        <div class="card-title">${phone.name}</div>
+        let rowsHtml = '';
+        fields.forEach(field => {
+            const val = rec[field.key] || 'N/A';
+            if(rec[field.key]) {
+                rowsHtml += `
+                <div class="data-row">
+                    <div class="data-label"><i class="${field.icon}" style="margin-right:5px; color:var(--primary)"></i> ${field.label}</div>
+                    <div class="data-value-group">
+                        <span class="data-value">${val}</span>
+                        <button class="copy-btn" onclick="copyToClipboard('${val}')"><i class="fa-regular fa-copy"></i></button>
                     </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // ---- POPUP / MODAL LOGIC ----
-        function openModal(phone) {
-            const modal = document.getElementById('details-modal');
-            const specsContainer = document.getElementById('modal-specs');
-
-            document.getElementById('modal-title').innerText = phone.name;
-            document.getElementById('modal-img').src = phone.thumbnail;
-
-            // Description Parsing (Sahi format mein)
-            specsContainer.innerHTML = "";
-            const ul = document.createElement('ul');
-
-            let desc = phone.description || "Details not available";
-            // Cleaning text
-            desc = desc.replace("Android smartphone.", "").replace("Features", "");
-            
-            // Splitting logic
-            let items = desc.split(/,|\./); // Comma ya full stop se split karega
-
-            items.forEach(item => {
-                let text = item.trim();
-                if (text.length > 2) {
-                    let li = document.createElement('li');
-                    // Highlight specs like GB, mAh, inches
-                    if (text.match(/\d/)) {
-                        li.innerHTML = `<strong>•</strong> ${text}`;
-                        li.style.color = "#fff"; // Brighten text with numbers
-                    } else {
-                        li.innerText = text;
-                    }
-                    ul.appendChild(li);
-                }
-            });
-
-            specsContainer.appendChild(ul);
-            modal.style.display = "flex";
-        }
-
-        function closeModal() {
-            document.getElementById('details-modal').style.display = "none";
-        }
-
-        // ---- ENTER KEY EVENT LISTENER ----
-        // Ye code ensure karega ki Enter dabane par search ho
-        document.getElementById('search-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                performSearch();
+                </div>`;
             }
         });
 
-    </script>
+        // Animation stagger
+        html += `<div class="data-card" style="animation-delay: ${index * 0.1}s">${rowsHtml}</div>`;
+      });
+
+      resultsDiv.innerHTML = html;
+    }
+
+    function renderPremium(num) {
+      resultsDiv.innerHTML = `
+        <div class="msg-box premium">
+          <span class="msg-icon">🔒</span>
+          <div class="msg-title">Protected Record</div>
+          <div class="msg-desc">
+            Data for <strong>${num}</strong> is classified. <br> 
+            Premium access is required to view this information.
+          </div>
+          <a href="https://wa.me/923457293830?text=I+need+premium+details+for+${num}" target="_blank" class="contact-btn">
+            <i class="fa-brands fa-whatsapp"></i> Unlock Now
+          </a>
+        </div>`;
+    }
+  </script>
 </body>
 </html>
